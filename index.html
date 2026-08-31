@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tidy Shelf</title>
+  <style>
+    :root { --ink:#4e3c37; --cream:#fff8e9; --wood:#c9865e; --wood-dark:#89533f; --sage:#75a78d; --pink:#f28d9d; }
+    * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { margin:0; min-height:100dvh; color:var(--ink); font-family: ui-rounded, "Nunito", system-ui, sans-serif; background:linear-gradient(145deg,#f9d9be,#eab7aa 45%,#c8d9c3); display:grid; place-items:center; padding:14px; overflow-x:hidden; }
+    .game { width:min(720px,100%); background:rgba(255,250,239,.94); border:4px solid rgba(255,255,255,.75); border-radius:29px; box-shadow:0 20px 52px #67443b55, inset 0 1px #fff; overflow:hidden; }
+    header { padding:18px 19px 13px; display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(100deg,#fff8e9,#fae8cd); border-bottom:2px dashed #dfb78d; }
+    h1 { margin:0; font:800 clamp(1.5rem,5vw,2.2rem)/1 ui-rounded,system-ui; letter-spacing:-1.5px; color:#955a48; }
+    h1 span { color:#77a183; }
+    .stats { display:flex; gap:7px; flex-wrap:wrap; justify-content:flex-end; }
+    .pill { background:#fff; border:2px solid #ecd2b0; border-radius:999px; padding:6px 10px; font-size:.78rem; font-weight:800; white-space:nowrap; box-shadow:0 2px #e7c9a9; }
+    .pill b { color:#c5676c; }
+    .stage { position:relative; min-height:545px; padding:18px 16px 16px; background:radial-gradient(circle at 12% 8%,#fff8d3 0 5%,transparent 5.2%),linear-gradient(#cfe7e1 0 42%,#f7d9b4 42%); }
+    .message { text-align:center; min-height:34px; font-weight:800; font-size:.95rem; color:#72574b; }
+    .shelf { margin:6px auto 18px; width:min(620px,100%); min-height:250px; padding:16px 10px 13px; display:grid; grid-template-columns:repeat(4,1fr); gap:11px 8px; align-content:space-between; border:12px solid var(--wood-dark); border-radius:13px 13px 4px 4px; background:repeating-linear-gradient(to bottom,#d7976b 0 105px,#f5c493 107px 113px,#875341 115px 123px); box-shadow:inset 0 0 0 3px #efb380,0 8px 1px #a7654d; }
+    .slot { min-height:92px; display:grid; place-items:center; border:2px dashed #895c4c8f; border-radius:14px; background:#fff8e950; transition:.2s; }
+    .slot.over { transform:scale(1.05); background:#fff9cf; border-color:#fff; box-shadow:0 0 0 3px #e79886; }
+    .slot.done { border-style:solid; border-color:#f7e5c4; background:#fffdf4a8; }
+    .items { width:min(620px,100%); margin:auto; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; min-height:132px; padding:12px; background:#f9ead1cc; border:2px solid #e3bd94; border-radius:17px; box-shadow:inset 0 2px #fff; }
+    .item, .placed { width:min(72px,17vw); aspect-ratio:1; display:grid; place-items:center; margin:auto; border-radius:20px; font-size:clamp(1.8rem,7vw,3.35rem); user-select:none; touch-action:none; cursor:grab; filter:drop-shadow(0 5px 2px #6b463755); transition:transform .18s, filter .18s; }
+    .item:active { cursor:grabbing; transform:scale(1.13) rotate(-5deg); }
+    .item.dragging { opacity:.25; }
+    .placed { cursor:default; animation:pop .35s cubic-bezier(.2,1.8,.4,1); }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:13px 18px 18px; background:#fff8e9; }
+    button { border:0; border-radius:13px; padding:11px 15px; color:#fff; background:#d87376; box-shadow:0 4px #9d4e58; font:800 .94rem inherit; cursor:pointer; transition:.15s; }
+    button:active { transform:translateY(3px); box-shadow:0 1px #9d4e58; }
+    .tip { margin:0; font-size:.78rem; color:#8d7163; font-weight:700; }
+    .modal { position:absolute; inset:0; display:grid; place-items:center; padding:20px; z-index:5; background:#fff9e9e8; text-align:center; backdrop-filter:blur(3px); }
+    .modal[hidden] { display:none; }
+    .card { max-width:360px; padding:25px; border-radius:24px; background:#fff; border:3px solid #f0cfaa; box-shadow:0 13px 25px #73504544; }
+    .card .big { font-size:3.5rem; margin-bottom:5px; } .card h2 { margin:0; color:#a05e4c; font-size:1.65rem; } .card p { line-height:1.45; color:#705a50; } .card button { margin-top:5px; background:#76a68a; box-shadow:0 4px #50755f; }
+    .spark { position:absolute; pointer-events:none; font-size:22px; animation:fly .7s ease-out forwards; z-index:4; }
+    @keyframes pop { from { transform:scale(.2) rotate(-18deg) } to { transform:scale(1) rotate(0) } }
+    @keyframes fly { to { transform:translate(var(--x),var(--y)) rotate(120deg); opacity:0 } }
+    @media (max-width:430px) { .stage { min-height:500px; padding:13px 9px; } .shelf { gap:6px; padding:12px 5px; border-width:9px; } .slot { min-height:80px; } .items { gap:5px; padding:8px 4px; } .toolbar { padding:11px; } .tip { max-width:190px; } header { padding:14px 11px 11px; } .pill { padding:5px 7px; } }
+  </style>
+</head>
+<body>
+  <main class="game">
+    <header><h1>Tidy <span>Shelf</span> ✿</h1><div class="stats"><div class="pill">Level <b id="level">1</b>/50</div><div class="pill">Score <b id="score">0</b></div><div class="pill">⏱ <b id="time">60</b>s</div></div></header>
+    <section class="stage" id="stage">
+      <div class="message" id="message">Match every treasure to its cozy shelf!</div>
+      <div class="shelf" id="shelf" aria-label="shelf slots"></div>
+      <div class="items" id="items" aria-label="items to tidy"></div>
+      <div class="modal" id="modal"><div class="card"><div class="big">🧺</div><h2 id="modalTitle">Welcome!</h2><p id="modalText">Put each object on the shelf with the same picture. Complete all 50 levels — each gets a fresh 60 seconds!</p><button id="start">Start tidying</button></div></div>
+    </section>
+    <footer class="toolbar"><p class="tip">Drag items onto their matching shelf spaces.</p><button id="restart">↻ Restart</button></footer>
+  </main>
+  <script>
+    const all = [
+      ['🍓','Strawberry'],['🧸','Teddy'],['🌷','Tulip'],['🫖','Teapot'],['📚','Books'],['🕯️','Candle'],
+      ['🍄','Mushroom'],['🧶','Yarn'],['🪴','Plant'],['🍪','Cookie'],['🎀','Bow'],['🧴','Lotion']
+    ];
+    // Fifty hand-mixed rounds: later levels use fuller shelves and new random layouts.
+    const counts=Array.from({length:50},(_,i)=>Math.min(12,4+Math.floor(i/5)));
+    const totalLevels=counts.length; let level=1, score=0, seconds=60, timer, active=false, dragged=null;
+    const $=id=>document.getElementById(id); const shelf=$('shelf'), items=$('items'), message=$('message');
+    function shuffle(a){ return [...a].sort(()=>Math.random()-.5); }
+    function sound(type){ try { const c=new (window.AudioContext||window.webkitAudioContext)(), o=c.createOscillator(), g=c.createGain(); o.connect(g);g.connect(c.destination); o.type=type==='good'?'sine':'triangle';o.frequency.value=type==='good'?640:160;g.gain.setValueAtTime(.08,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.start();o.stop(c.currentTime+.2); } catch(e){} }
+    function render(){
+      const chosen=shuffle(all).slice(0,counts[level-1]); shelf.innerHTML=''; items.innerHTML='';
+      shuffle(chosen).forEach(([icon,name])=>{ const s=document.createElement('div');s.className='slot';s.dataset.key=icon;s.setAttribute('aria-label',name+' shelf slot');s.innerHTML='<span style="font-size:clamp(1.5rem,6vw,2.7rem);opacity:.55">'+icon+'</span>'; shelf.append(s); });
+      shuffle(chosen).forEach(([icon,name])=>{ const e=document.createElement('div');e.className='item';e.draggable=true;e.dataset.key=icon;e.setAttribute('aria-label',name);e.textContent=icon; bindItem(e);items.append(e); });
+      message.textContent=level===1?'Match every treasure to its cozy shelf!':'Level '+level+' of '+totalLevels+' — keep the magic tidy!';
+    }
+    function bindItem(e){
+      e.addEventListener('dragstart',()=>{dragged=e;e.classList.add('dragging')});e.addEventListener('dragend',()=>e.classList.remove('dragging'));
+      e.addEventListener('pointerdown',ev=>{dragged=e;e.setPointerCapture?.(ev.pointerId);e.classList.add('dragging')});
+      e.addEventListener('pointerup',ev=>{e.classList.remove('dragging'); const at=document.elementFromPoint(ev.clientX,ev.clientY)?.closest('.slot'); if(at) drop(at); });
+    }
+    shelf.addEventListener('dragover',e=>{e.preventDefault();e.target.closest('.slot')?.classList.add('over')});
+    shelf.addEventListener('dragleave',e=>e.target.closest('.slot')?.classList.remove('over'));
+    shelf.addEventListener('drop',e=>{e.preventDefault();drop(e.target.closest('.slot'))});
+    function drop(slot){ if(!active||!dragged||slot.classList.contains('done'))return; document.querySelectorAll('.slot').forEach(x=>x.classList.remove('over'));
+      if(slot.dataset.key===dragged.dataset.key){ const p=document.createElement('div');p.className='placed';p.textContent=dragged.textContent;slot.innerHTML='';slot.append(p);slot.classList.add('done');dragged.remove();score+=10*level;$('score').textContent=score;message.textContent='Perfect spot! ✨';sound('good');spark(slot); if(!items.children.length) complete(); }
+      else { message.textContent='Almost! Find the matching picture.'; sound('bad'); }
+      dragged=null;
+    }
+    function spark(el){ const r=el.getBoundingClientRect(), st=$('stage').getBoundingClientRect(); for(let i=0;i<6;i++){const x=document.createElement('i');x.className='spark';x.textContent=['✦','✿','•'][i%3];x.style.left=(r.left-st.left+r.width/2)+'px';x.style.top=(r.top-st.top+r.height/2)+'px';x.style.setProperty('--x',(Math.random()*90-45)+'px');x.style.setProperty('--y',(Math.random()*-90-10)+'px');$('stage').append(x);setTimeout(()=>x.remove(),700)} }
+    function tick(){ seconds--; $('time').textContent=seconds; if(seconds<=0) finish(false); }
+    function startGame(){ level=1;score=0;seconds=60;active=true;$('score').textContent=0;$('level').textContent=1;$('time').textContent=60;$('modal').hidden=true;clearInterval(timer);timer=setInterval(tick,1000);render(); }
+    function complete(){ if(level<totalLevels){ active=false;clearInterval(timer);setTimeout(()=>{level++;seconds=60;$('level').textContent=level;$('time').textContent=seconds;active=true;render();timer=setInterval(tick,1000);},700); } else finish(true); }
+    function finish(won){active=false;clearInterval(timer);$('modalTitle').textContent=won?'Shelf perfection!':'Time for a tea break';$('modalText').textContent=won?'You tidied all '+totalLevels+' shelves and scored '+score+' points!':'You scored '+score+' points. A cozy second try awaits!';$('start').textContent='Play again';$('modal').hidden=false;sound(won?'good':'bad');}
+    $('start').onclick=startGame; $('restart').onclick=startGame;
+  </script>
+</body>
+</html>
