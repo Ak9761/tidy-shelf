@@ -3,7 +3,23 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Tidy Shelf</title>
+  <title>Tidy Shelf — Cozy 50-Level Sorting Game</title>
+  <meta name="description" content="Play Tidy Shelf, a free cozy browser game with 50 colorful sorting levels. Drag treasures onto matching shelves and beat the timer.">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="theme-color" content="#f9d9be">
+  <meta name="application-name" content="Tidy Shelf">
+  <link rel="canonical" href="https://ak9761.github.io/tidy-shelf/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Tidy Shelf">
+  <meta property="og:title" content="Tidy Shelf — Cozy 50-Level Sorting Game">
+  <meta property="og:description" content="A free, mobile-friendly game: tidy colorful treasures onto their matching shelves.">
+  <meta property="og:url" content="https://ak9761.github.io/tidy-shelf/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Tidy Shelf — Cozy 50-Level Sorting Game">
+  <meta name="twitter:description" content="Play 50 cozy levels of a colorful shelf-sorting game in your browser.">
+  <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"VideoGame","name":"Tidy Shelf","url":"https://ak9761.github.io/tidy-shelf/","description":"A free, cozy 50-level browser game where players drag colorful treasures onto matching shelves before time runs out.","applicationCategory":"Game","gamePlatform":"Web browser","operatingSystem":"Any","isAccessibleForFree":true,"genre":["Puzzle","Casual","Cozy"]}
+  </script>
   <style>
     :root { --ink:#4e3c37; --cream:#fff8e9; --wood:#c9865e; --wood-dark:#89533f; --sage:#75a78d; --pink:#f28d9d; }
     * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -49,7 +65,7 @@
       <div class="items" id="items" aria-label="items to tidy"></div>
       <div class="modal" id="modal"><div class="card"><div class="big">🧺</div><h2 id="modalTitle">Welcome!</h2><p id="modalText">Put each object on the shelf with the same picture. Complete all 50 levels — each gets a fresh 60 seconds!</p><button id="start">Start tidying</button></div></div>
     </section>
-    <footer class="toolbar"><p class="tip">Drag items onto their matching shelf spaces.</p><button id="restart">↻ Restart</button></footer>
+    <footer class="toolbar"><p class="tip">A cozy 50-level sorting game — drag items onto their matching shelf spaces.</p><button id="restart">↻ Restart</button></footer>
   </main>
   <script>
     const all = [

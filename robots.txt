@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ak9761.github.io/tidy-shelf/sitemap.xml
